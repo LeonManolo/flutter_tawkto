@@ -25,6 +25,15 @@ class Tawk extends StatefulWidget {
   /// Render your own loading widget.
   final Widget? placeholder;
 
+
+  /// Defines the delay in milliseconds before setting the visitor details.
+  ///
+  /// This property is used as a workaround to address a timing issue with the
+  /// Tawk.to API where immediate setting of visitor details might not work as expected.
+  /// Assigning a delay ensures that the visitor details are set only after the specified
+  /// duration, allowing for any necessary initializations to complete.
+  final int visitorDetailsDelayMs;
+
   const Tawk({
     Key? key,
     required this.directChatLink,
@@ -32,6 +41,7 @@ class Tawk extends StatefulWidget {
     this.onLoad,
     this.onLinkTap,
     this.placeholder,
+    this.visitorDetailsDelayMs = 100,
   }) : super(key: key);
 
   @override
@@ -43,22 +53,51 @@ class _TawkState extends State<Tawk> {
   bool _isLoading = true;
 
   void _setUser(TawkVisitor visitor) {
-    final json = jsonEncode(visitor);
-    String javascriptString;
-
-    if (Platform.isIOS) {
-      javascriptString = '''
+    final json = jsonEncode(visitor.toJson());
+    String javascriptString = '''
         Tawk_API = Tawk_API || {};
-        Tawk_API.setAttributes($json);
-      ''';
-    } else {
-      javascriptString = '''
-        Tawk_API = Tawk_API || {};
-        Tawk_API.onLoad = function() {
-          Tawk_API.setAttributes($json);
+        Tawk_API.onLoad = async function() {
+        setTimeout(function() {
+          try {
+            Tawk_API.setAttributes($json, (error) => {
+            if (error) {
+               console.log(error);
+            }
+          });
+          } catch(e) {
+            console.log(e);
+          }
+        }, ${widget.visitorDetailsDelayMs});
+          
         };
       ''';
-    }
+
+    // if (Platform.isIOS) {
+    //   javascriptString = '''
+    //     Tawk_API = Tawk_API || {};
+    //     Tawk_API.setAttributes($json, function(error) {
+    //       console.log(error);
+    //     });
+    //   ''';
+    // } else {
+    //   javascriptString = '''
+    //     Tawk_API = Tawk_API || {};
+    //     Tawk_API.onLoad = async function() {
+    //     setTimeout(function() {
+    //       try {
+    //         Tawk_API.setAttributes($json, (error) => {
+    //         if (error) {
+    //            console.log(error);
+    //         }
+    //       });
+    //       } catch(e) {
+    //         console.log(e);
+    //       }
+    //     }, ${widget.visitorDetailsDelayMs});
+    //
+    //     };
+    //   ''';
+    // }
 
     _controller.evaluateJavascript(source: javascriptString);
   }
@@ -70,19 +109,19 @@ class _TawkState extends State<Tawk> {
 
   void init() async {
     if (Platform.isAndroid) {
-      await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+      await InAppWebViewController.setWebContentsDebuggingEnabled(false);
 
-      var swAvailable = await AndroidWebViewFeature.isFeatureSupported(
-          AndroidWebViewFeature.SERVICE_WORKER_BASIC_USAGE);
-      var swInterceptAvailable = await AndroidWebViewFeature.isFeatureSupported(
-          AndroidWebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
+      var swAvailable = await WebViewFeature.isFeatureSupported(
+          WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+      var swInterceptAvailable = await WebViewFeature.isFeatureSupported(
+          WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
 
       if (swAvailable && swInterceptAvailable) {
-        AndroidServiceWorkerController serviceWorkerController =
-            AndroidServiceWorkerController.instance();
+        ServiceWorkerController serviceWorkerController =
+        ServiceWorkerController.instance();
 
         await serviceWorkerController
-            .setServiceWorkerClient(AndroidServiceWorkerClient(
+            .setServiceWorkerClient(ServiceWorkerClient(
           shouldInterceptRequest: (request) async {
             return null;
           },
@@ -99,11 +138,14 @@ class _TawkState extends State<Tawk> {
           gestureRecognizers: {}..add(Factory<VerticalDragGestureRecognizer>(
               () => VerticalDragGestureRecognizer())),
           initialUrlRequest:
-              URLRequest(url: Uri.tryParse(widget.directChatLink)),
+              URLRequest(url: WebUri.uri(Uri.parse(widget.directChatLink))),
           onWebViewCreated: (webViewController) {
             setState(() {
               _controller = webViewController;
             });
+          },
+          onConsoleMessage: (controller, consoleMessage) {
+            print("Tawk: ${consoleMessage.message}");
           },
           onLoadStop: (_, __) {
             init();

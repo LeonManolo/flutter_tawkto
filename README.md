@@ -32,6 +32,7 @@ Tawk(
     visitor: TawkVisitor(
         name: 'Ayoub AMINE',
         email: 'ayoubamine2a@gmail.com',
+        additionalAttributes: {},
     ),
 )
 ```
@@ -42,21 +43,29 @@ See the `example` directory for the complete sample app.
 
 ### Tawk
 
-| Parameter      | Type          | Default                                      | Description                                    | Required |
-| -------------- | ------------- | -------------------------------------------- | ---------------------------------------------- | -------- |
-| directChatLink | `String`      | `null`                                       | Tawk direct chat link.                         | Yes      |
-| visitor        | `TawkVisitor` | `null`                                       | Object used to set the visitor name and email. | No       |
-| onLoad         | `Function`    | `null`                                       | Called right after the widget is rendered.     | No       |
-| onLinkTap      | `Function`    | `null`                                       | Called when a link pressed.                    | No       |
-| placeholder    | `Widget`      | `Center(child: CircularProgressIndicator())` | Render your own loading widget.                | No       |
+| Parameter      | Type          | Default                                      | Description                                                                                                                                                 | Required |
+| -------------- |---------------|----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------| -------- |
+| directChatLink | `String`      | `null`                                       | Tawk direct chat link.                                                                                                                                      | Yes      |
+| visitor        | `TawkVisitor` | `null`                                       | Object used to set the visitor name and email.                                                                                                              | No       |
+| onLoad         | `Function`    | `null`                                       | Called right after the widget is rendered.                                                                                                                  | No       |
+| onLinkTap      | `Function`    | `null`                                       | Called when a link pressed.                                                                                                                                 | No       |
+| placeholder    | `Widget`      | `Center(child: CircularProgressIndicator())` | Render your own loading widget.                                                                                                                             | No       |
+| visitorDetailsDelayMs    | `int`         | `100`                                        | This property is used as a workaround to address a timing issue with the Tawk.to API where immediate setting of visitor details might not work as expected. | No       |
 
 ### TawkVisitor
 
-| Parameter | Type     | Default | Description                                                 | Required |
-| --------- | -------- | ------- | ----------------------------------------------------------- | -------- |
-| name      | `String` | `null`  | Visitor's name.                                             | No       |
-| email     | `String` | `null`  | Visitor's email.                                            | No       |
-| hash      | `String` | `null`  | [Secure mode](https://developer.tawk.to/jsapi/#SecureMode). | No       |
+| Parameter | Type                   | Default | Description                                                 | Required |
+| --------- |------------------------|---------| ----------------------------------------------------------- | -------- |
+| name      | `String`               | `null`  | Visitor's name.                                             | No       |
+| email     | `String`               | `null`  | Visitor's email.                                            | No       |
+| hash      | `String`               | `null`  | [Secure mode](https://developer.tawk.to/jsapi/#SecureMode). | No       |
+| additionalAttributes      | `Map<String, dynamic>` | `{}`    | [Secure mode](https://developer.tawk.to/jsapi/#SecureMode). | No       |
+
+### Important: additionalAttributes
+After creating a custom attribute in Tawk.to, an automatically generated key is assigned to it. 
+This key might differ from what you initially entered. To find this key, 
+edit the attribute right after creating it and copy the key shown. 
+This key, which typically looks like "be14rgec-v", is what you'll use in your code.
 
 ## Contributions
 

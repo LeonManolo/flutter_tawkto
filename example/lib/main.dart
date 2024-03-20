@@ -16,10 +16,14 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
         body: Tawk(
-          directChatLink: '',
+          directChatLink: 'https://tawk.to/chat/xxxx',
           visitor: TawkVisitor(
-            name: 'Ayoub AMINE',
-            email: 'ayoubamine2a@gmail.com',
+            name: 'Leon M',
+            additionalAttributes: {
+              'userId': '1234567', // key defined by tawk
+              'customattribute': 1234, // sometimes its not working for me
+              'be14rgec-v': 'working custom attribute' // custom attribute
+            }
           ),
           onLoad: () {
             print('Hello Tawk!');
