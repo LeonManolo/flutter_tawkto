@@ -25,7 +25,6 @@ class Tawk extends StatefulWidget {
   /// Render your own loading widget.
   final Widget? placeholder;
 
-
   /// Defines the delay in milliseconds before setting the visitor details.
   ///
   /// This property is used as a workaround to address a timing issue with the
@@ -54,7 +53,29 @@ class _TawkState extends State<Tawk> {
 
   void _setUser(TawkVisitor visitor) {
     final json = jsonEncode(visitor.toJson());
-    String javascriptString = '''
+    final String javascriptString;
+
+    /// Tawk_API.onLoad unfortunately does not really work
+    if (Platform.isIOS) {
+      javascriptString = '''
+        setTimeout(function() {
+          Tawk_API = Tawk_API || {};
+          Tawk_API.visitor = $json;
+          console.log('hello');
+          try {
+              Tawk_API.setAttributes($json, (error) => {
+              if (error) {
+               console.log(error);
+              }
+            });
+            } catch(e) {
+              console.log(e);
+          }
+        }, ${widget.visitorDetailsDelayMs});
+         
+      ''';
+    } else {
+      javascriptString = '''
         Tawk_API = Tawk_API || {};
         Tawk_API.onLoad = async function() {
         setTimeout(function() {
@@ -71,6 +92,7 @@ class _TawkState extends State<Tawk> {
           
         };
       ''';
+    }
 
     // if (Platform.isIOS) {
     //   javascriptString = '''
@@ -118,7 +140,7 @@ class _TawkState extends State<Tawk> {
 
       if (swAvailable && swInterceptAvailable) {
         ServiceWorkerController serviceWorkerController =
-        ServiceWorkerController.instance();
+            ServiceWorkerController.instance();
 
         await serviceWorkerController
             .setServiceWorkerClient(ServiceWorkerClient(

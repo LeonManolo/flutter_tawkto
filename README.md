@@ -55,11 +55,11 @@ See the `example` directory for the complete sample app.
 ### TawkVisitor
 
 | Parameter | Type                   | Default | Description                                                 | Required |
-| --------- |------------------------|---------| ----------------------------------------------------------- | -------- |
+| --------- |------------------------|---------|-------------------------------------------------------------| -------- |
 | name      | `String`               | `null`  | Visitor's name.                                             | No       |
 | email     | `String`               | `null`  | Visitor's email.                                            | No       |
 | hash      | `String`               | `null`  | [Secure mode](https://developer.tawk.to/jsapi/#SecureMode). | No       |
-| additionalAttributes      | `Map<String, dynamic>` | `{}`    | [Secure mode](https://developer.tawk.to/jsapi/#SecureMode). | No       |
+| additionalAttributes      | `Map<String, dynamic>` | `{}`    | Additional and custom attributes                            | No       |
 
 ### Important: additionalAttributes
 After creating a custom attribute in Tawk.to, an automatically generated key is assigned to it. 

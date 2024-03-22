@@ -17,6 +17,9 @@ class MyApp extends StatelessWidget {
         ),
         body: Tawk(
           directChatLink: 'https://tawk.to/chat/xxxx',
+          // if attributes other than "name","email" and "hash" are not visible,
+          // try to increase this delay
+          visitorDetailsDelayMs: 500,
           visitor: TawkVisitor(
             name: 'Leon M',
             additionalAttributes: {
